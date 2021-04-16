@@ -48,11 +48,22 @@ def takeaway(request):
         else:
             delev = Delivery_staff.objects.filter(area_code = user.area_code)
             if delev.exists():
-                redirect('/takeaway/',pnum)
-                pass
+                return redirect('/takeaway/'+str(pnum)+'/order')
             else:
                 messages.info(request, 'Delivery staff no code')
                 return redirect('/ufunc/')
 
-        
-    pass
+def dinein(request):
+    if request.method == "POST":
+        pnum = request.POST["pnum"]
+        return redirect('/dinein/'+str(pnum)+'/order')
+
+def accres(request):
+    if request.method == "POST":
+        pnum = request.POST["pnum"]
+        return redirect('/accept_res/'+str(pnum)+'/order')
+
+def restable(request):
+    if request.method == "POST":
+        pnum = request.POST["pnum"]
+        return redirect('/reserve_tab/'+str(pnum)+'/order')

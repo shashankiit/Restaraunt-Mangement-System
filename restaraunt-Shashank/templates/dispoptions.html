@@ -7,17 +7,19 @@
     <title>First Page</title>
 </head>
 <body>
-    <h1> Welcome {{user.name}}!!</h1>
-    <form>
-        <input type = "hidden" value = {{user.phone}}>
+    <form action = "restable" method = "POST" >
+        {% csrf_token %}
+        <input type = "hidden" name = "pnum" value = {{user.phone}}>
         <input type="submit" value = "Reserve a table"><br><br>
     </form>
-    <form>
-        <input type = "hidden" value = {{user.phone}}>
+    <form action = "accres" method = "POST" >
+        {% csrf_token %}
+        <input type = "hidden" name = "pnum" value = {{user.phone}}>
         <input type="submit" value = "Accept reservation"><br><br>
     </form>
-    <form>
-        <input type = "hidden" value = {{user.phone}}>
+    <form action = "dinein" method = "POST" >
+        {% csrf_token %}
+        <input type = "hidden" name = "pnum" value = {{user.phone}}>
         <input type="submit" value = "Dine in"><br><br>
     </form>
     <form action = "takeaway" method = "POST" >
