@@ -1,6 +1,8 @@
 from django.contrib import admin
-from .models import User,Delivery_staff
+from .models import *
 # Register your models here.
 
 admin.site.register(User)
 admin.site.register(Delivery_staff)
+admin.site.register(Loyalty_level)
+admin.site.register(Budget)

@@ -13,7 +13,7 @@
 </head>
 <body>
     <h1>Hiya {{pnum}}</h1>
-    <h2>Confirm order </h2><br>
+    <h2>Final Bill </h2><br>
     <table width="30%">
         <tr>
             <th>Name</th>
@@ -33,7 +33,10 @@
     </table>
     Total : {{totprice}} <br>
     Final Bill: {{finprice}} <br>
-    <button>Confirm</button>
-    <button>Go back</button>
+    <form >
+    <input type = "hidden" value = "pnum">
+    <input type = "submit" value = "Continue">
+    </form>
+    
 </body>
 </html>
