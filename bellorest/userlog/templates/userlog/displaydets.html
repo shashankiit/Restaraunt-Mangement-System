@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Details</title>
+</head>
+<body>
+    <div>
+    {%if found%}
+    <h4>Customer found!! Update your details.</h4>
+    {% else %}
+    <h4>Customer not found!! Please enter your details.</h4>
+    {% endif %}
+    </div>
+    
+    <form name="dets" action = "update" method = "POST">
+        {% csrf_token %}
+        <label for="pnum">Phone:</label><br>
+        <input type="number" id="pnum" name="pnum" value = {{ phone}}><br>
+        <label for="name">Name:</label><br>
+        <input type="text" id="name" name="name" value = "{{ user.name}}" required><br>
+        <label for="addr">Address line1:</label><br>
+        <input type="text" id="addr" name="addr" value = {{ user.address}}><br>
+        <label for="arcode">Area code:</label><br>
+        <input type="number" id="arcode" name="arcode" value = {{ user.area_code}}><br><br>
+        <input type="submit" value = "Update">
+    </form>
+
+    {% comment %} <form action = "continue" method = "POST" >
+    {% csrf_token %}
+    <input type = "hidden" name="pnum" value = {{phone}}>
+    <input type="submit" value = "Continue">
+    </form> {% endcomment %}
+</body>
+</html>

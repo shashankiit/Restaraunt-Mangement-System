@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>First Page</title>
+</head>
+<body>
+    <h1>Welcome {{user.name}}</h1>
+    <form action = "restable" method = "POST" >
+        {% csrf_token %}
+        <input type = "hidden" name = "pnum" value = {{user.phone}}>
+        <input type="submit" value = "Reserve a table"><br><br>
+    </form>
+    <form action = "accres" method = "POST" >
+        {% csrf_token %}
+        <input type = "hidden" name = "pnum" value = {{user.phone}}>
+        <input type="submit" value = "Accept reservation"><br><br>
+    </form>
+    <form action = "dinein" method = "POST" >
+        {% csrf_token %}
+        <input type = "hidden" name = "pnum" value = {{user.phone}}>
+        <input type="submit" value = "Dine in"><br><br>
+    </form>
+    <form action = "takeaway" method = "POST" >
+        {% csrf_token %}
+        <input type = "hidden" name = "pnum" value = {{user.phone}}>
+        <input type= "submit" value = "Takeaway"><br><br>
+    </form>
+    
+
+    {% comment %} {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %} {% endcomment %}
+    <!-- There is no reservation under your phone no. -->
+    {% comment %} Your reservation is for 11:30 {% endcomment %}
+
+    
+</body>
+</html>
