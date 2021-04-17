@@ -48,7 +48,7 @@ def takeaway(request):
         else:
             delev = Delivery_staff.objects.filter(area_code = user.area_code)
             if delev.exists():
-                return redirect('/takeaway/'+str(pnum)+'/order')
+                return redirect('/takeaway/'+str(pnum)+'/menu')
             else:
                 messages.info(request, 'Delivery staff no code')
                 return redirect('/ufunc/')

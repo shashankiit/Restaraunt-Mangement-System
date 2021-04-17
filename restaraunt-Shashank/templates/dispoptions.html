@@ -7,6 +7,7 @@
     <title>First Page</title>
 </head>
 <body>
+    <h1>Welcome {{user.name}}</h1>
     <form action = "restable" method = "POST" >
         {% csrf_token %}
         <input type = "hidden" name = "pnum" value = {{user.phone}}>
