@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        table, th, td {
+            border: 1px solid black;
+          }
+    </style>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservation</title>
+</head>
+<body>
+    <h1>Hello {{user.phone}}</h1>
+    <h2>Choose reservation slots please</h2><br>
+    <form action="confirmation/" method="POST">
+      {% csrf_token %}
+      <input type = "hidden" name = "pnum" value = {{user.phone}}>
+    <label for="name">Number of Diners:</label><br>
+        <input type="text" id="name" name="name"><br><br>
+        <label for="name">Date:  </label>
+        <input type="date" id="name" name="name"><br><br>
+        <label for="name">Start Time:</label>
+        <input type="time" id="name" name="name">
+        <label for="name">Time Duration:</label>
+        <input type="time" id="name" name="name"><br><br>
+        
+        <button>submit</button>
+    </form>
+
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <h5>Free slots for required capacity on the given date </h5>
+    <table style="width: 30%">
+        <tr>
+          <th>Free slots</th>
+        </tr>
+        <tr>
+          <td>8:30 - 18:30</td>
+        </tr>
+        <tr>
+          <td>19:30 - 23:59</td>
+        </tr>
+      </table>
+</body>
+</html>

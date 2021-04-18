@@ -65,4 +65,4 @@ def accres(request):
 def restable(request):
     if request.method == "POST":
         pnum = request.POST["pnum"]
-        return redirect('/reserve_tab/'+str(pnum)+'/order')
+        return redirect('/reserve_tab/'+str(pnum)+'/reservation')

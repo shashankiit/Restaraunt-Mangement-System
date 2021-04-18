@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'userlog',
     'takeaway',
+    'reserve_tab',
 ]
 
 MIDDLEWARE = [
