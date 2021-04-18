@@ -1,0 +1,5 @@
+1) In budget model auto_add_now=true
+2) Add unique_together in models
+3) remove item_id from menu_item
+4) address issue in html
+5) reservation end time
