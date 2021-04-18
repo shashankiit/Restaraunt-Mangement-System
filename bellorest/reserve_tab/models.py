@@ -3,7 +3,7 @@ from django.db import models
 # Create your models here.
 
 class Dining_table(models.Model):
-	table_id = models.IntegerField()
+	table_id = models.IntegerField(unique=True)
 	capacity = models.IntegerField()
 	phone_occupied = models.BigIntegerField(null=True, default=None, blank=True)
 

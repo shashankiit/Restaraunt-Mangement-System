@@ -4,3 +4,5 @@ from .models import *
 
 admin.site.register(User)
 admin.site.register(Delivery_staff)
+admin.site.register(Loyalty_level)
+admin.site.register(Budget)

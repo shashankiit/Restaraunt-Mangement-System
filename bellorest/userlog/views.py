@@ -2,8 +2,8 @@ from django.shortcuts import render
 from .models import *
 from django.shortcuts import redirect
 from django.contrib import messages
+from time import sleep
 # Create your views here.
-
 def entpno(request):
     return render(request,"userlog/enterphone.html")
 
@@ -37,6 +37,7 @@ def update(request):
         user.save()
     return render(request,"userlog/dispoptions.html",{"user":user})
 
+
 def takeaway(request):
     if request.method == "POST":
         pnum = request.POST["pnum"]
@@ -60,7 +61,7 @@ def dinein(request):
 def accres(request):
     if request.method == "POST":
         pnum = request.POST["pnum"]
-        return redirect('/accept_res/'+str(pnum)+'/order')
+        return redirect('/accept_res/'+str(pnum)+'/menu')
 
 def restable(request):
     if request.method == "POST":

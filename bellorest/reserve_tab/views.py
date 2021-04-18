@@ -19,7 +19,7 @@ def timeadd(t1,t2):
 	minute = 0
 	hour = 0
 	minute = int(t1l[1]) + int(t2l[1])
-	while minute > 60:
+	while minute >= 60:
 		hour +=1
 		minute -= 60
 	hour += int(t1l[0]) + int(t2l[0])
@@ -64,7 +64,6 @@ def buttonform(request, pnum):
 		# START COMPUTATION
 		if datex > today:
 			dateres = Reservation.objects.filter(date_for_res=datex)
-			print((timeup < timedown))
 			occupied_tables=[]
 			occupied_objects=[]
 			for i in range(dateres.count()):
@@ -76,7 +75,6 @@ def buttonform(request, pnum):
 				start = endtime.split(':')
 				etime=time(hour=int(start[0]),minute=int(start[1]),second=0)
 				overlapval = overlap(stime,etime,timeup,timedown)
-				print(overlapval)
 				if overlapval == True:
 					occupied_tables.append(int(current.table_id))
 					occupied_objects.append(current)
@@ -90,12 +88,11 @@ def buttonform(request, pnum):
 			blocked_slots_list = []
 			for i in range(len(occupied_objects)):
 				stime = occupied_objects[i].time_for_res.strftime('%H:%M')
-				tdur = current.reservation_duration.strftime('%H:%M')
+				tdur = occupied_objects[i].reservation_duration.strftime('%H:%M')
 				etime = timeadd(tdur,sdur)
 				stringer = stime + ' - ' + etime
 				blocked_slots_list.append(stringer)
 			if len(avaitables)==0:
-				print(blocked_slots_list)
 				messages.info(request, 'No Tables Available at that time')
 				return redirect('/reserve_tab/'+str(pnum)+'/reservation')
 		elif datex == today:
