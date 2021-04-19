@@ -26,12 +26,6 @@ def timeadd(t1,t2):
 	time = str(hour) + ":" + str(minute)
 	return time
 
-appointments = [(datetime(2012, 5, 22, 10), datetime(2012, 5, 22, 10, 30)),
-				(datetime(2012, 5, 22, 12), datetime(2012, 5, 22, 13)),
-				(datetime(2012, 5, 22, 15, 30), datetime(2012, 5, 22, 17, 10))]
-
-hours = (datetime(2012, 5, 22, 9), datetime(2012, 5, 22, 18))
-
 def get_slots(hours, appointments, duration):
 	slots = sorted([(hours[0], hours[0])] + appointments + [(hours[1], hours[1])])
 	freeslots = []
