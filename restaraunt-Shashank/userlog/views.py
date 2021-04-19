@@ -33,7 +33,7 @@ def update(request):
         user.area_code = arcode
         user.save()
     else:
-        user = User.objects.create(phone = pnum,name = name,address = addr,area_code=arcode,mon_spent = 0,loyalty=0)
+        user = User.objects.create(phone = pnum,name = name,address = addr,area_code=arcode,mon_spent = 0,loyalty=Loyalty_level.objects.get(loyalty_points=0))
         user.save()
     return render(request,"dispoptions.html",{"user":user})
 

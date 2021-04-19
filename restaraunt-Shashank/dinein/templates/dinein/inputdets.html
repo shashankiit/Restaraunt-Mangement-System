@@ -14,18 +14,18 @@
 <body>
     <h1>Hello {{user.phone}}</h1>
     <h2>Choose reservation slots please</h2><br>
-    <form action="confirmation/" method="POST">
+    <form action="check/" method="POST">
       {% csrf_token %}
       <input type = "hidden" name = "pnum" value = {{user.phone}}>
     <label for="name">Number of Diners:</label><br>
-        <input type="text" id="name" name="name"><br><br>
-        <label for="name">Date:  </label>
+        <input type="text" id="numd" name="numd"><br><br>
+        {% comment %} <label for="name">Date:  </label>
         <input type="date" id="name" name="name"><br><br>
         <label for="name">Start Time:</label>
-        <input type="time" id="name" name="name">
+        <input type="time" id="name" name="name"> {% endcomment %}
         <label for="name">Time Duration:</label>
-        <input type="time" id="name" name="name"><br><br>
-        <button>submit</button>
+        <input type="time" id="tdur" name="tdur"><br><br>
+        <input type="submit">
     </form>
 
     {% if messages %}

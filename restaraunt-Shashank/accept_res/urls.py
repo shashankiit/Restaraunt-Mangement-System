@@ -1,9 +1,8 @@
 from django.urls import path
-from django.urls import reverse
 from . import views
 
 urlpatterns = [
-    path('<pnum>/order', views.itemlist, name='index'),
-    
-    # path('continue', views.cont, name = 'continue')
+    path('<pnum>/menu/', views.menu_item_list),
+    path('<pnum>/menu/confirm/', views.conforder),
+    path('<pnum>/menu/confirm/orderagain/', views.orderagain),
 ]

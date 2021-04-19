@@ -1,3 +1,4 @@
 from django.db import models
-
-# Create your models here.
+from reserve_tab.models import *
+from userlog.models import *
+from takeaway.models import *
