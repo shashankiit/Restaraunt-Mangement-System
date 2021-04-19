@@ -2,8 +2,9 @@ from django.shortcuts import render
 from .models import *
 from django.shortcuts import redirect
 from django.contrib import messages
-from time import sleep
+
 # Create your views here.
+
 def entpno(request):
     return render(request,"userlog/enterphone.html")
 
@@ -33,10 +34,9 @@ def update(request):
         user.area_code = arcode
         user.save()
     else:
-        user = User.objects.create(phone = pnum,name = name,address = addr,area_code=arcode,mon_spent = 0,loyalty=0)
+        user = User.objects.create(phone = pnum,name = name,address = addr,area_code=arcode,mon_spent = 0,loyalty=Loyalty_level.objects.get(loyalty_points=0))
         user.save()
     return render(request,"userlog/dispoptions.html",{"user":user})
-
 
 def takeaway(request):
     if request.method == "POST":
@@ -56,7 +56,7 @@ def takeaway(request):
 def dinein(request):
     if request.method == "POST":
         pnum = request.POST["pnum"]
-        return redirect('/dinein/'+str(pnum)+'/order')
+        return redirect('/dinein/'+str(pnum)+'/dinein')
 
 def accres(request):
     if request.method == "POST":

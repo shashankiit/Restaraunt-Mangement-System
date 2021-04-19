@@ -38,9 +38,7 @@ def conforder(request):
 			totalprice += price*int(quantity[i])
 		pnum=int(pnum)
 		user= User.objects.get(phone=pnum)
-		loyal = user.loyalty
-		loyal = Loyalty_level.objects.get(loyalty_points=loyal)
-		finalprice = totalprice -  int(loyal.discount_perc*totalprice/100)
+		finalprice = totalprice - int(user.loyalty.discount_perc*totalprice/100)
 		user.mon_spent+=finalprice
 		user.save()
 		bud = Budget.objects.get(day=date.today())

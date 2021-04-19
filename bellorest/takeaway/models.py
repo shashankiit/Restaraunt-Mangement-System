@@ -3,7 +3,6 @@ from userlog.models import *
 # Create your models here.
 
 class Menu_item(models.Model):
-	item_id = models.IntegerField(null=True)
 	item_name = models.CharField(max_length=200, null=True,unique=True)
 	selling_price = models.IntegerField(null=True)
 
@@ -27,5 +26,7 @@ class Ingredient_list(models.Model):
 	ingredient = models.ForeignKey(Inventory, on_delete=models.CASCADE)
 	use_quantity = models.IntegerField(help_text = "in grams")
 
+	class Meta:
+		unique_together = ('item','ingredient')
 	def __str__(self):
 		return f"Item : {self.item.item_name} --> Ingredient : {self.ingredient.ingredient_name}"

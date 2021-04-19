@@ -1,5 +1,5 @@
 from django.db import models
-
+from userlog.models import *
 # Create your models here.
 
 class Dining_table(models.Model):

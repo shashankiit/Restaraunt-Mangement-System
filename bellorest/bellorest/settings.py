@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'userlog',
     'reserve_tab',
     'accept_res',
+    'dinein',
 ]
 
 MIDDLEWARE = [

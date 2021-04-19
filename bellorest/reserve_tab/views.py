@@ -1,8 +1,6 @@
 from django.shortcuts import redirect, render
-from userlog.models import User
 from .models import *
 from django.contrib import messages
-from django.db.models import Q
 from datetime import time, date
 
 def differlist(li1, li2):
@@ -35,7 +33,7 @@ def reservation(request, pnum):
 def confres(request, pnum):
 	if request.method == 'POST':
 		alldata = request.POST
-		pnum = alldata["pnum"]
+		phnum = alldata["pnum"]
 		lister = alldata.getlist('name')
 		diners = lister[0]
 		date = lister[1]
