@@ -69,4 +69,4 @@ def restoreing(ling):
 		ing.save()
 
 def feed(request,pnum):
-	return redirect("/ufunc") ## redirect to feedback
+	return redirect(f"/feedback/{pnum}") ## redirect to feedback

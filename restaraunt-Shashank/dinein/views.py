@@ -188,4 +188,4 @@ def orderagain(request, pnum):
 		tab = Dining_table.objects.get(table_id=mytableid)
 		tab.phone_occupied = None
 		tab.save()
-		return redirect('/ufunc')
+		return redirect(f"/feedback/{pnum}")

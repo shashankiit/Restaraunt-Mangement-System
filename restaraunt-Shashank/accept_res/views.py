@@ -119,4 +119,4 @@ def orderagain(request, pnum):
 		tab.phone_occupied = None
 		tab.save()
 		########################################
-		return redirect('/ufunc') ## redirect to feedback
+		return redirect(f"/feedback/{pnum}") ## redirect to feedback

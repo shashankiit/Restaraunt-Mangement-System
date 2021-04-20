@@ -16,5 +16,3 @@ TODO
 - Queueing algorithm
 
 - Recommender System
-
-- Link Feedback
