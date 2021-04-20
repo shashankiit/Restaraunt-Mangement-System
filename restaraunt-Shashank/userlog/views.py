@@ -2,10 +2,11 @@ from django.shortcuts import render
 from .models import *
 from django.shortcuts import redirect
 from django.contrib import messages
-from time import sleep
+
 # Create your views here.
+
 def entpno(request):
-    return render(request,"enterphone.html")
+    return render(request,"userlog/enterphone.html")
 
 def pnentered(request):
     num = request.POST["pnum"]
@@ -15,7 +16,7 @@ def pnentered(request):
     if user.exists():
         user = User.objects.get(phone = num)
         found = 1
-    return render(request,"displaydets.html",{"found":found,"phone":num,"user":user})
+    return render(request,"userlog/displaydets.html",{"found":found,"phone":num,"user":user})
 
 def update(request):
     pnum = request.POST["pnum"]
@@ -35,8 +36,7 @@ def update(request):
     else:
         user = User.objects.create(phone = pnum,name = name,address = addr,area_code=arcode,mon_spent = 0,loyalty=Loyalty_level.objects.get(loyalty_points=0))
         user.save()
-    return render(request,"dispoptions.html",{"user":user})
-
+    return render(request,"userlog/dispoptions.html",{"user":user})
 
 def takeaway(request):
     if request.method == "POST":
@@ -56,12 +56,12 @@ def takeaway(request):
 def dinein(request):
     if request.method == "POST":
         pnum = request.POST["pnum"]
-        return redirect('/dinein/'+str(pnum)+'/order')
+        return redirect('/dinein/'+str(pnum)+'/dinein')
 
 def accres(request):
     if request.method == "POST":
         pnum = request.POST["pnum"]
-        return redirect('/accept_res/'+str(pnum)+'/order')
+        return redirect('/accept_res/'+str(pnum)+'/menu')
 
 def restable(request):
     if request.method == "POST":

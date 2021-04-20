@@ -1,21 +1,10 @@
-from django.shortcuts import render,redirect
-from userlog.models import *
-from takeaway.models import *
-from reserve_tab.models import *
-from datetime import time, date, datetime
+from django.shortcuts import redirect, render
+from .models import *
 from django.contrib import messages
-# Create your views here.
+from datetime import time, date, datetime
 
-# def itemlist(request,pnum): # always get this page
-#     pnum = int(pnum)
-#     user = User.objects.get(phone = pnum)
-#     return render(request,"itemlist.html",{"user":user})
+flag = 0
 
-def dnin(request,pnum):
-	user = User.objects.get(phone=int(pnum))
-	return render(request, 'dinein/inputdets.html', {"user":user})
-
-# *********************************************
 def differlist(li1, li2):
 	setA=set(li1)
 	setB=set(li2)
@@ -38,138 +27,93 @@ def timeadd(t1,t2):
 		minute = "0" + str(minute)
 	time = str(hour) + ":" + str(minute)
 	return time
-# **************************************************
-def confres(request,pnum):
+
+def reservation(request, pnum):
 	user = User.objects.get(phone=int(pnum))
-	alldata = request.POST
-	timedur = alldata["tdur"]
-	diners = int(alldata["numd"])
-	datex = date.today()
-	restime = datetime.now().strftime("%H:%M")
-	endtime = timeadd(restime,timedur)
+	todate = datetime.today().date()
+	startime = datetime.today().time()
+	return render(request, 'dinein/dinein.html', {"user":user, "todate":todate, "curtime":startime})
 
-
-	start = restime.split(':')
-	timeup=time(hour=int(start[0]),minute=int(start[1]),second=0)
-	start = endtime.split(':')
-	timedown=time(hour=int(start[0]),minute=int(start[1]),second=0)
-	start = datex.split('-')
-	datex = date(year=int(start[0]),month=int(start[1]),day=int(start[2]))
-	today = date.today()
-	#logic for tables
-
-	dateres = Reservation.objects.filter(date_for_res=datex)
-	occupied_tables=[]
-	occupied_objects=[]
-
-	for i in range(dateres.count()):
-		current = dateres[i]
-		stime = current.time_for_res
-		sdur = stime.strftime('%H:%M')
-		tdur = current.reservation_duration.strftime('%H:%M')
-		etime = timeadd(tdur,sdur)
-		start = endtime.split(':')
-		etime=time(hour=int(start[0]),minute=int(start[1]),second=0)
-		overlapval = overlap(stime,etime,timeup,timedown)
-		if overlapval == True:
-			occupied_tables.append(int(current.table_id))
-			occupied_objects.append(current)
-		else:
-			continue
-	
-	alltables = Dining_table.objects.filter(capacity__gte=diners)
-	alltab=[]
-	for i in range(alltables.count()):
-		alltab.append(int(alltables[i].table_id))
-	avaitables = differlist(alltab,occupied_tables)
-	blocked_slots_list = []
-	for i in range(len(occupied_objects)):
-		stime = occupied_objects[i].time_for_res.strftime('%H:%M')
-		tdur = occupied_objects[i].reservation_duration.strftime('%H:%M')
-		etime = timeadd(tdur,sdur)
-		stringer = stime + ' - ' + etime
-		blocked_slots_list.append(stringer)
-	if len(avaitables)==0:
-		# Ask to wait in queue
-		# get the last slot table
-		messages.info(request, 'No Tables Available at that time')
-		context = {"user":user,"table":tabid,"tdur":timedur,"numd":diners} 
-		return render(request,"dinein/dineinop.html",context)
-
-	# GET TABLE OBJECTS WHICH ARE AVAILABLE
-	avaitobj = Dining_table.objects.filter(table_id__in=avaitables)
-	avaitsobj = avaitobj.order_by('capacity').first()
-	mytableid = avaitsobj.table_id
-	Reservation.objects.create(table_id=mytableid,phone = pnum,date_for_res=datex,num_diners=diners,time_for_res=timeup,reservation_duration=timedur)
-
-def update(request):
-	if request.POST["decision"] == "Yes":
+def confres(request, pnum):
+	if request.method == 'POST':
 		alldata = request.POST
-		mytableid = alldata["tbid"]
-		pnum = int(alldata["pnum"])
+		lister = alldata.getlist('name')
+		restime = alldata["nowtime"]
+		diners = lister[0]
+		date = datetime.today().date()
+		tdur = lister[1]
+		endtime = timeadd(restime, tdur)
+		context = {'diners':diners ,'date':date, 'restime':restime, 'duration':tdur, 'endtime':endtime, 'user':pnum}
+	return render(request, 'dinein/confres.html', context)
 
-
-		timedur = alldata["tdur"]
-		diners = int(alldata["numd"])
-		datex = date.today()
-		restime = datetime.now().strftime("%H:%M")
-		endtime = timeadd(restime,timedur)
-
-
+def buttonform(request, pnum):
+	tablers = Dining_table.objects.filter(phone_occupied=int(pnum))
+	if tablers.count() == 1:
+		# print('HI')
+		allmenu = Menu_item.objects.all()
+		user = User.objects.get(phone=int(pnum))
+		return render(request, 'dinein/menu.html', {'menu':allmenu,"user":user})
+	if request.POST["action"] == "Confirm" and (tablers.count() == 0):
+		# GRAB DATA FROM URL
+		diners = int(request.POST["diners"])
+		restime = request.POST["restime"]
+		timedur = request.POST["duration"]
+		endtime = request.POST["endtime"]
+		# FORMAT DATA FOR COMPARISON
 		start = restime.split(':')
-		timeup=time(hour=int(start[0]),minute=int(start[1]),second=0)
+		timeup=time(hour=int(start[0]),minute=int(start[1])) # diner starttime datetime class
 		start = endtime.split(':')
-		timedown=time(hour=int(start[0]),minute=int(start[1]),second=0)
-		start = datex.split('-')
-		datex = date(year=int(start[0]),month=int(start[1]),day=int(start[2]))
+		timedown=time(hour=int(start[0]),minute=int(start[1])) # diner endtime datetime class
 		today = date.today()
-
-
-		restime = datetime.now().strftime("%H:%M")
-		Reservation.objects.create(table_id=mytableid,phone = pnum,date_for_res=date.today(),num_diners=diners,time_for_res=timeup,reservation_duration=timedur)
-		context = {}
-		return render(request,"dinein/dineinwait.html",context)
-	else:
-		pass
-
-
-def menu_item_list(request,pnum):
-	allmenu = Menu_item.objects.all()
-	user = User.objects.get(phone=int(pnum))
-	todate = date.today()
-	nowtime = datetime.now().time()
-	useres = Reservation.objects.filter(phone=int(pnum),date_for_res=todate)
-	if useres.count() == 0:
-		messages.info(request, "You don\'t have an existing reservation")
-		return redirect('/ufunc')
-	else:
-		for i in range(useres.count()):
-			stime = useres[i].time_for_res
-			strtime = stime.strftime("%H:%M")
-			after = timeadd(strtime,"00:30")
-			start = after.split(':')
-			after=time(hour=int(start[0]),minute=int(start[1]),second=0)
-			if (nowtime < stime):
-				messages.info(request, "You are early, please come after start of your slot")
-				return redirect('/ufunc')
-			elif (nowtime > after):
-				messages.info(request, "You are late, your reservation is void")
-				return redirect('/ufunc')
+		# START COMPUTATION
+		dateres = Reservation.objects.filter(date_for_res=today)
+		occupied_tables=[]
+		occupied_objects=[]
+		for i in range(dateres.count()):
+			current = dateres[i] # Res object
+			stime = current.time_for_res # Start of res datetime class
+			sdur = stime.strftime('%H:%M') # start of res in string
+			tdur = current.reservation_duration.strftime('%H:%M') # duration of res in string
+			etime = timeadd(tdur,sdur) # endtime in string
+			start = endtime.split(':')
+			etime=time(hour=int(start[0]),minute=int(start[1])) # endtime in datetime class
+			overlapval = overlap(stime,etime,timeup,timedown)
+			if overlapval == True:
+				occupied_tables.append(int(current.table_id))
+				occupied_objects.append(current)
 			else:
-				return render(request, 'dinein/menu.html', {'menu':allmenu,"user":user})
-
-
-
-def trytoenter(request):
-	alldata = request.POST
-	if alldata["action"]=="Enter":
-		#check if reservation is appropriate from acceptres
-		return menu_item_list(request,alldata["pnum"])
+				continue
+		alltables = Dining_table.objects.filter(capacity__gte=diners, phone_occupied=None)
+		alltab=[]
+		for i in range(alltables.count()):
+			alltab.append(int(alltables[i].table_id))
+		avaitables = differlist(alltab,occupied_tables)
+		print(avaitables)
+		blocked_slots_list = []
+		for i in range(len(occupied_objects)):
+			stime = occupied_objects[i].time_for_res.strftime('%H:%M')
+			tdur = occupied_objects[i].reservation_duration.strftime('%H:%M')
+			etime = timeadd(tdur,sdur)
+			stringer = stime + ' - ' + etime
+			blocked_slots_list.append(stringer)
+		if len(avaitables)==0:
+			messages.info(request, 'No Tables Available till that time')
+			return redirect('/dinein/'+str(pnum)+'/dinein')
+		# GET TABLE OBJECTS WHICH ARE AVAILABLE
+		avaitobj = Dining_table.objects.filter(table_id__in=avaitables)
+		avaitsobj = avaitobj.order_by('capacity').first()
+		mytableid = avaitsobj.table_id
+		Reservation.objects.create(table_id=mytableid,phone = pnum,date_for_res=today,num_diners=diners,time_for_res=timeup,reservation_duration=timedur)
+		allt = Dining_table.objects.get(table_id=mytableid)
+		allt.phone_occupied=int(pnum)
+		allt.save()
+		messages.info(request, 'Have a nice meal')
+		allmenu = Menu_item.objects.all()
+		user = User.objects.get(phone=int(pnum))
+		return render(request, 'dinein/menu.html', {'menu':allmenu,"user":user})
 	else:
-		return redirect("/ufunc")
-		# go back to ufunc
-
-
+		messages.info(request, 'Try adjusting time')
+		return redirect('/dinein/'+str(pnum)+'/dinein/')
 
 def conforder(request,pnum):
 	if request.method == 'POST':
@@ -193,15 +137,13 @@ def conforder(request,pnum):
 				#message and redirect to item list
 				restoreing(ling)
 				messages.info(request, f'Ingredients not available for {object1.item_name}')
-				return redirect('/dinein/'+str(pnum)+'/menu')
+				return redirect('/dinein/'+str(pnum)+'/confirmation/update/')
 			price=object1.selling_price
 			empty.append(price*int(quantity[i]))
 			totalprice += price*int(quantity[i])
 		pnum=int(pnum)
 		user= User.objects.get(phone=pnum)
-		loyal = user.loyalty
-		loyal = Loyalty_level.objects.get(loyalty_points=loyal)
-		finalprice = totalprice -  int(loyal.discount_perc*totalprice/100)
+		finalprice = totalprice -  int(user.loyalty.discount_perc*totalprice/100)
 		user.mon_spent+=finalprice
 		user.save()
 		bud = Budget.objects.get(day=date.today())
@@ -209,7 +151,7 @@ def conforder(request,pnum):
 		bud.save()
 		mylist = zip(choices, quantity, empty)
 		context = {'chosen':mylist ,'totprice':totalprice, 'finprice':finalprice, 'pnum':pnum}
-	return render(request, 'dinein/conford.html', context)
+		return render(request, 'dinein/conford.html', context)
 
 def chekifavail(item,quantity,ling):
 	listofingred = item.getingred()
@@ -223,7 +165,6 @@ def chekifavail(item,quantity,ling):
 			return ling,False
 		ing.quantity = ing.quantity - usage
 		ing.save()
-
 	return ling,True
 
 def restoreing(ling):
@@ -234,6 +175,17 @@ def restoreing(ling):
 
 def orderagain(request, pnum):
 	if request.POST["action"] == "Order More":
-		return redirect('/dinein/'+str(pnum)+'/menu')
+		allmenu = Menu_item.objects.all()
+		user = User.objects.get(phone=int(pnum))
+		return redirect('/dinein/'+str(pnum)+'/dinein/confirmation/update/')
 	else:
+		# SET PHONE NUMBER in Dining_table TO NULL
+		todate = date.today()
+		nowtime = datetime.now().time()
+		useres = Reservation.objects.filter(phone=int(pnum),date_for_res=todate)
+		mytableid = useres.order_by('time_for_res').first().table_id
+		useres[0].delete()
+		tab = Dining_table.objects.get(table_id=mytableid)
+		tab.phone_occupied = None
+		tab.save()
 		return redirect('/ufunc')

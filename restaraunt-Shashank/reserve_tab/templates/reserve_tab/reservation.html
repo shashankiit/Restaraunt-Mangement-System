@@ -12,7 +12,7 @@
     <title>Reservation</title>
 </head>
 <body>
-    <h1>Hello {{user.phone}}</h1>
+    <h1>Hello {{user}}</h1>
     <h2>Choose reservation slots please</h2><br>
     <form action="confirmation/" method="POST">
       {% csrf_token %}
@@ -35,18 +35,5 @@
         {% endfor %}
     </ul>
     {% endif %}
-
-    <h5>Free slots for required capacity on the given date </h5>
-    <table style="width: 30%">
-        <tr>
-          <th>Free slots</th>
-        </tr>
-        <tr>
-          <td>8:30 - 18:30</td>
-        </tr>
-        <tr>
-          <td>19:30 - 23:59</td>
-        </tr>
-      </table>
 </body>
 </html>

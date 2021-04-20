@@ -1,11 +1,10 @@
 from django.urls import path
-from django.urls import reverse
 from . import views
 
 urlpatterns = [
-    path('<pnum>/dinein', views.dnin, name='reserve_for_dinein'),
-    path('<pnum>/dinein/check/', views.confres),
-    path('<pnum>/dinein/check/update' , views.update),
-    path('<pnum>/dinein/trytoenter' , views.trytoenter)
-    # path('continue', views.cont, name = 'continue')
+    path('<pnum>/dinein/', views.reservation),
+    path('<pnum>/dinein/confirmation/', views.confres),
+    path('<pnum>/dinein/confirmation/update/', views.buttonform),
+    path('<pnum>/dinein/confirmation/update/confirm/', views.conforder),
+    path('<pnum>/dinein/confirmation/update/confirm/orderagain/', views.orderagain),
 ]

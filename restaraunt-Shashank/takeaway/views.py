@@ -1,18 +1,16 @@
 from django.shortcuts import render
-from userlog.models import *
 from .models import *
 from django.shortcuts import redirect
 from django.contrib import messages
 from datetime import date
 # Create your views here.
 
-
 def menu_item_list(request,pnum):
 	allmenu = Menu_item.objects.all()
 	user = User.objects.get(phone=int(pnum))
 	return render(request, 'takeaway/menu.html', {'menu':allmenu,"user":user})
 
-def conforder(request):
+def conforder(request,pnum):
 	if request.method == 'POST':
 		alldata = request.POST
 		pnum = alldata["pnum"]
@@ -33,14 +31,14 @@ def conforder(request):
 			if (not check):
 				#message and redirect to item list
 				restoreing(ling)
-				messages.info(request, f'Ingredient not availabale for {object1.item_name}')
+				messages.info(request, f'Ingredient not available for {object1.item_name}')
 				return redirect('/takeaway/'+str(pnum)+'/menu')
 			price=object1.selling_price
 			empty.append(price*int(quantity[i]))
 			totalprice += price*int(quantity[i])
 		pnum=int(pnum)
 		user= User.objects.get(phone=pnum)
-		finalprice = totalprice -  int(user.loyalty.discount_perc*totalprice/100)
+		finalprice = totalprice - int(user.loyalty.discount_perc*totalprice/100)
 		user.mon_spent+=finalprice
 		user.save()
 		bud = Budget.objects.get(day=date.today())
@@ -62,7 +60,6 @@ def chekifavail(item,quantity,ling):
 			return ling,False
 		ing.quantity = ing.quantity - usage
 		ing.save()
-
 	return ling,True
 
 def restoreing(ling):
@@ -71,4 +68,5 @@ def restoreing(ling):
 		ing.quantity = ling[ing_name]
 		ing.save()
 
-	
+def feed(request,pnum):
+	return redirect("/ufunc") ## redirect to feedback

@@ -1,8 +1,6 @@
 from django.db import models
-
+from userlog.models import *
 # Create your models here.
-
-
 
 class Menu_item(models.Model):
 	item_name = models.CharField(max_length=200, null=True,unique=True)
@@ -32,5 +30,3 @@ class Ingredient_list(models.Model):
 		unique_together = ('item','ingredient')
 	def __str__(self):
 		return f"Item : {self.item.item_name} --> Ingredient : {self.ingredient.ingredient_name}"
-	
-

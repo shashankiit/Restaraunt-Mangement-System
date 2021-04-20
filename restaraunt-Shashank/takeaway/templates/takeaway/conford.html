@@ -12,7 +12,7 @@
     <title>Confirm</title>
 </head>
 <body>
-    <h1>Hiya {{pnum}}</h1>
+    <h1>Hello {{pnum}}</h1>
     <h2>Final Bill </h2><br>
     <table width="30%">
         <tr>
@@ -33,7 +33,8 @@
     </table>
     Total : {{totprice}} <br>
     Final Bill: {{finprice}} <br>
-    <form >
+    <form action="con/" method="POST">
+    {% csrf_token %}
     <input type = "hidden" value = "pnum">
     <input type = "submit" value = "Continue">
     </form>

@@ -6,29 +6,45 @@ from django.contrib import messages
 from datetime import date, datetime, time
 
 def menu_item_list(request,pnum):
+	alltables = Dining_table.objects.filter(phone_occupied=int(pnum))
 	allmenu = Menu_item.objects.all()
 	user = User.objects.get(phone=int(pnum))
-	todate = date.today()
-	nowtime = datetime.now().time()
-	useres = Reservation.objects.filter(phone=int(pnum),date_for_res=todate)
-	if useres.count() == 0:
-		messages.info(request, "You don\'t have an existing reservation")
-		return redirect('/ufunc')
+	if alltables.count() != 0:
+		return render(request, 'accept_res/menu.html', {'menu':allmenu,"user":user})
 	else:
-		for i in range(useres.count()):
-			stime = useres[i].time_for_res
-			strtime = stime.strftime("%H:%M")
-			after = timeadd(strtime,"00:30")
-			start = after.split(':')
-			after=time(hour=int(start[0]),minute=int(start[1]),second=0)
-			if (nowtime < stime):
-				messages.info(request, "You are early, please come after start of your slot")
-				return redirect('/ufunc')
-			elif (nowtime > after):
-				messages.info(request, "You are late, your reservation is void")
-				return redirect('/ufunc')
-			else:
-				return render(request, 'accept_res/menu.html', {'menu':allmenu,"user":user})
+		todate = date.today()
+		nowtime = datetime.now().time()
+		useres = Reservation.objects.filter(phone=int(pnum),date_for_res=todate).order_by('time_for_res')
+		# mytableid = useres.order_by('time_for_res').first().table_id
+		if useres.count() == 0:
+			messages.info(request, "You don\'t have an existing reservation") 
+			return redirect('/ufunc')
+		else:
+			#################
+			mytableid = useres.order_by('time_for_res').first().table_id
+			##################
+			for i in range(useres.count()):
+				stime = useres[i].time_for_res
+				strtime = stime.strftime("%H:%M")
+				after = timeadd(strtime,"00:30")
+				start = after.split(':')
+				after=time(hour=int(start[0]),minute=int(start[1]),second=0)
+				if (nowtime < stime):
+					##############################
+					messages.info(request, f"You are early, please come after start of your slot {str(stime)} at {str(todate)}")
+					##############################
+					return redirect('/ufunc')
+				elif (nowtime > after):
+					messages.info(request, "You are late, your reservation is void")
+					################## remove reservation (tested right)
+					useres[i].delete()
+					##################################
+					return redirect('/ufunc')
+				else:
+					allt = Dining_table.objects.get(table_id=mytableid)
+					allt.phone_occupied=int(pnum)
+					allt.save()
+					return render(request, 'accept_res/menu.html', {'menu':allmenu,"user":user})
 
 def conforder(request,pnum):
 	if request.method == 'POST':
@@ -58,9 +74,7 @@ def conforder(request,pnum):
 			totalprice += price*int(quantity[i])
 		pnum=int(pnum)
 		user= User.objects.get(phone=pnum)
-		loyal = user.loyalty
-		loyal = Loyalty_level.objects.get(loyalty_points=loyal)
-		finalprice = totalprice -  int(loyal.discount_perc*totalprice/100)
+		finalprice = totalprice -  int(user.loyalty.discount_perc*totalprice/100)
 		user.mon_spent+=finalprice
 		user.save()
 		bud = Budget.objects.get(day=date.today())
@@ -95,4 +109,14 @@ def orderagain(request, pnum):
 	if request.POST["action"] == "Order More":
 		return redirect('/accept_res/'+str(pnum)+'/menu')
 	else:
-		return redirect('/ufunc')
+		#### remove reservation and clear table (tested right)
+		todate = date.today()
+		nowtime = datetime.now().time()
+		useres = Reservation.objects.filter(phone=int(pnum),date_for_res=todate)
+		mytableid = useres.order_by('time_for_res').first().table_id
+		useres[0].delete()
+		tab = Dining_table.objects.get(table_id=mytableid)
+		tab.phone_occupied = None
+		tab.save()
+		########################################
+		return redirect('/ufunc') ## redirect to feedback

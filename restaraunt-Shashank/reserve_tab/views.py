@@ -1,9 +1,7 @@
 from django.shortcuts import redirect, render
-from userlog.models import User
 from .models import *
 from django.contrib import messages
-from django.db.models import Q
-from datetime import time, date
+from datetime import time, date, datetime, timedelta
 
 def differlist(li1, li2):
 	setA=set(li1)
@@ -28,6 +26,17 @@ def timeadd(t1,t2):
 	time = str(hour) + ":" + str(minute)
 	return time
 
+def get_slots(hours, appointments, duration):
+	slots = sorted([(hours[0], hours[0])] + appointments + [(hours[1], hours[1])])
+	freeslots = []
+	for start, end in ((slots[i][1], slots[i+1][0]) for i in range(len(slots)-1)):
+		assert start <= end, "Cannot attend all appointments"
+		while start + duration <= end:
+			x = "{:%H:%M} - {:%H:%M}".format(start, start + duration)
+			freeslots.append(x)
+			start += duration
+	return freeslots
+
 def reservation(request, pnum):
 	user = User.objects.get(phone=int(pnum))
 	return render(request, 'reserve_tab/reservation.html', {"user":user})
@@ -35,7 +44,7 @@ def reservation(request, pnum):
 def confres(request, pnum):
 	if request.method == 'POST':
 		alldata = request.POST
-		pnum = alldata["pnum"]
+		phnum = alldata["pnum"]
 		lister = alldata.getlist('name')
 		diners = lister[0]
 		date = lister[1]
@@ -54,28 +63,36 @@ def buttonform(request, pnum):
 		timedur = request.POST["duration"]
 		endtime = request.POST["endtime"]
 		# FORMAT DATA FOR COMPARISON
+		datesplit = datex.split('-')
+		datex = date(year=int(datesplit[0]),month=int(datesplit[1]),day=int(datesplit[2]))
 		start = restime.split(':')
-		timeup=time(hour=int(start[0]),minute=int(start[1]),second=0)
+		timeup=datetime(year=int(datesplit[0]),month=int(datesplit[1]),day=int(datesplit[2]),hour=int(start[0]),minute=int(start[1]))
 		start = endtime.split(':')
-		timedown=time(hour=int(start[0]),minute=int(start[1]),second=0)
-		start = datex.split('-')
-		datex = date(year=int(start[0]),month=int(start[1]),day=int(start[2]))
+		timedown=datetime(year=int(datesplit[0]),month=int(datesplit[1]),day=int(datesplit[2]),hour=int(start[0]),minute=int(start[1]))
+		start = timedur.split(':')
+		td = timedelta(hours=int(start[0]),minutes=int(start[1]))
+		workinghours = (datetime(year=int(datesplit[0]),month=int(datesplit[1]),day=int(datesplit[2]),hour=8), datetime(year=int(datesplit[0]),month=int(datesplit[1]),day=int(datesplit[2]),hour=23))
 		today = date.today()
 		# START COMPUTATION
 		if datex > today:
 			dateres = Reservation.objects.filter(date_for_res=datex)
 			occupied_tables=[]
 			occupied_objects=[]
+			freeslotscomputation=[]
 			for i in range(dateres.count()):
 				current = dateres[i]
 				stime = current.time_for_res
 				sdur = stime.strftime('%H:%M')
+				start = sdur.split(':')
+				stime=datetime(year=int(datesplit[0]),month=int(datesplit[1]),day=int(datesplit[2]),hour=int(start[0]),minute=int(start[1]))
 				tdur = current.reservation_duration.strftime('%H:%M')
 				etime = timeadd(tdur,sdur)
-				start = endtime.split(':')
-				etime=time(hour=int(start[0]),minute=int(start[1]),second=0)
+				start = etime.split(':')
+				etime=datetime(year=int(datesplit[0]),month=int(datesplit[1]),day=int(datesplit[2]),hour=int(start[0]),minute=int(start[1]))
 				overlapval = overlap(stime,etime,timeup,timedown)
 				if overlapval == True:
+					x=(stime,etime)
+					freeslotscomputation.append(x)
 					occupied_tables.append(int(current.table_id))
 					occupied_objects.append(current)
 				else:
@@ -93,6 +110,7 @@ def buttonform(request, pnum):
 				stringer = stime + ' - ' + etime
 				blocked_slots_list.append(stringer)
 			if len(avaitables)==0:
+				freeslots = get_slots(workinghours,freeslotscomputation,td)
 				messages.info(request, 'No Tables Available at that time')
 				return redirect('/reserve_tab/'+str(pnum)+'/reservation')
 		elif datex == today:
