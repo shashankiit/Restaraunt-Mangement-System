@@ -10,7 +10,7 @@ def menu_item_list(request,pnum):
 	user = User.objects.get(phone=int(pnum))
 	return render(request, 'takeaway/menu.html', {'menu':allmenu,"user":user})
 
-def conforder(request):
+def conforder(request,pnum):
 	if request.method == 'POST':
 		alldata = request.POST
 		pnum = alldata["pnum"]
@@ -45,7 +45,7 @@ def conforder(request):
 		bud.earned+=finalprice
 		bud.save()
 		mylist = zip(choices, quantity, empty)
-		context = {'chosen':mylist ,'totprice':totalprice, 'finprice':finalprice, 'pnum':pnum}
+		context = {'chosen':mylist ,'totprice':totalprice, 'finprice':finalprice, 'pnum':user.name}
 	return render(request, 'takeaway/conford.html', context)
 
 def chekifavail(item,quantity,ling):
@@ -67,3 +67,6 @@ def restoreing(ling):
 		ing = Inventory.objects.get(ingredient_name=ing_name)
 		ing.quantity = ling[ing_name]
 		ing.save()
+
+def feed(request,pnum):
+	return redirect(f"/feedback/{pnum}") ## redirect to feedback

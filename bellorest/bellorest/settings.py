@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'reserve_tab',
     'accept_res',
     'dinein',
+    'startpage',
+    'feedback',
 ]
 
 MIDDLEWARE = [

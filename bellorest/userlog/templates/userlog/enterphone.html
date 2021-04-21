@@ -10,7 +10,7 @@
     <form action = "pnenter" method = "POST">
         {% csrf_token %}
         <label for="pnum">Enter phone number:</label><br>
-        <input type="text" id="pnum" name="pnum"><br>
+        <input type="text" id="pnum" name="pnum" required><br>
         <input type="submit">
     </form>
     {% if messages %}

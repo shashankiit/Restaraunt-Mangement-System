@@ -49,7 +49,7 @@ def confres(request, pnum):
 def buttonform(request, pnum):
 	tablers = Dining_table.objects.filter(phone_occupied=int(pnum))
 	if tablers.count() == 1:
-		print('HI')
+		# print('HI')
 		allmenu = Menu_item.objects.all()
 		user = User.objects.get(phone=int(pnum))
 		return render(request, 'dinein/menu.html', {'menu':allmenu,"user":user})
@@ -143,9 +143,7 @@ def conforder(request,pnum):
 			totalprice += price*int(quantity[i])
 		pnum=int(pnum)
 		user= User.objects.get(phone=pnum)
-		# loyal = user.loyalty
-		# loyal = Loyalty_level.objects.get(loyalty_points=loyal)
-		# finalprice = totalprice -  int(loyal.discount_perc*totalprice/100)
+		finalprice = totalprice -  int(user.loyalty.discount_perc*totalprice/100)
 		user.mon_spent+=finalprice
 		user.save()
 		bud = Budget.objects.get(day=date.today())
@@ -182,4 +180,12 @@ def orderagain(request, pnum):
 		return redirect('/dinein/'+str(pnum)+'/dinein/confirmation/update/')
 	else:
 		# SET PHONE NUMBER in Dining_table TO NULL
-		return redirect('/ufunc')
+		todate = date.today()
+		nowtime = datetime.now().time()
+		useres = Reservation.objects.filter(phone=int(pnum),date_for_res=todate)
+		mytableid = useres.order_by('time_for_res').first().table_id
+		useres[0].delete()
+		tab = Dining_table.objects.get(table_id=mytableid)
+		tab.phone_occupied = None
+		tab.save()
+		return redirect(f"/feedback/{pnum}")

@@ -3,7 +3,7 @@ from django.shortcuts import render
 from .models import *
 from django.shortcuts import redirect
 from django.contrib import messages
-from datetime import date, datetime, time
+from datetime import date, datetime, timedelta
 
 def menu_item_list(request,pnum):
 	alltables = Dining_table.objects.filter(phone_occupied=int(pnum))
@@ -12,31 +12,52 @@ def menu_item_list(request,pnum):
 	if alltables.count() != 0:
 		return render(request, 'accept_res/menu.html', {'menu':allmenu,"user":user})
 	else:
-		todate = date.today()
-		nowtime = datetime.now().time()
+		nowtime = datetime.now()
+		date_time = nowtime.strftime("%Y/%m/%d")
+		datesplit = date_time.split("/")
+		todate = date(int(datesplit[0]),int(datesplit[1]),int(datesplit[2]))
 		useres = Reservation.objects.filter(phone=int(pnum),date_for_res=todate)
-		mytableid = useres.order_by('time_for_res').first().table_id
+		todelete=[]
 		if useres.count() == 0:
-			messages.info(request, "You don\'t have an existing reservation")
+			messages.info(request, "You don\'t have an existing reservation") 
 			return redirect('/ufunc')
 		else:
 			for i in range(useres.count()):
 				stime = useres[i].time_for_res
 				strtime = stime.strftime("%H:%M")
-				after = timeadd(strtime,"00:30")
-				start = after.split(':')
-				after=time(hour=int(start[0]),minute=int(start[1]),second=0)
-				if (nowtime < stime):
-					messages.info(request, "You are early, please come after start of your slot")
-					return redirect('/ufunc')
-				elif (nowtime > after):
-					messages.info(request, "You are late, your reservation is void")
-					return redirect('/ufunc')
+				start = strtime.split(':')
+				stime = datetime(year=int(datesplit[0]),month=int(datesplit[1]),day=int(datesplit[2]),hour=int(start[0]),minute=int(start[1]))
+				atime = stime + timedelta(minutes=30)
+				btime = stime - timedelta(minutes=30)
+				if nowtime > atime:
+					todelete.append(useres[i])
+					continue
+				if (nowtime - stime < timedelta(hours=1)) or (stime - nowtime < timedelta(hours=1)):
+					validres = True
+					break
 				else:
-					allt = Dining_table.objects.get(table_id=mytableid)
-					allt.phone_occupied=int(pnum)
-					allt.save()
-					return render(request, 'accept_res/menu.html', {'menu':allmenu,"user":user})
+					continue
+		for i in todelete:
+			i.delete()	
+		if (nowtime < btime):
+			##############################
+			messages.info(request, f"You are early, please come after start of your slot {str(stime)}")
+			##############################
+			return redirect('/ufunc')
+		elif (nowtime > atime):
+			messages.info(request, "You are late, your reservation is void")
+			################## remove reservation (tested right)
+			# useres[i].delete()
+			##################################
+			return redirect('/ufunc')
+		elif validres and nowtime <= atime and nowtime >= stime:
+			allt = Dining_table.objects.get(table_id=useres[i].table_id)
+			allt.phone_occupied=int(pnum)
+			allt.save()
+			return render(request, 'accept_res/menu.html', {'menu':allmenu,"user":user})
+		else:
+			messages.info(request, f"There is no reservation or you haven't arrived on time")
+			return redirect('/ufunc')
 
 def conforder(request,pnum):
 	if request.method == 'POST':
@@ -66,9 +87,7 @@ def conforder(request,pnum):
 			totalprice += price*int(quantity[i])
 		pnum=int(pnum)
 		user= User.objects.get(phone=pnum)
-		# loyal = user.loyalty
-		# loyal = Loyalty_level.objects.get(loyalty_points=loyal)
-		# finalprice = totalprice -  int(loyal.discount_perc*totalprice/100)
+		finalprice = totalprice -  int(user.loyalty.discount_perc*totalprice/100)
 		user.mon_spent+=finalprice
 		user.save()
 		bud = Budget.objects.get(day=date.today())
@@ -103,4 +122,13 @@ def orderagain(request, pnum):
 	if request.POST["action"] == "Order More":
 		return redirect('/accept_res/'+str(pnum)+'/menu')
 	else:
-		return redirect('/ufunc')
+		#### remove reservation and clear table (tested right)
+		todate = date.today()
+		useres = Reservation.objects.filter(phone=int(pnum),date_for_res=todate)
+		ongoingres = useres.order_by('time_for_res').first()
+		ongoingres.delete()
+		tab = Dining_table.objects.get(phone_occupied=int(pnum))
+		tab.phone_occupied = None
+		tab.save()
+		########################################
+		return redirect(f"/feedback/{pnum}") ## redirect to feedback
