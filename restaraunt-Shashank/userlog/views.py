@@ -32,6 +32,7 @@ def update(request):
         user.name  = name
         user.address = addr
         user.area_code = arcode
+        user.loyaltyupdate()
         user.save()
     else:
         user = User.objects.create(phone = pnum,name = name,address = addr,area_code=arcode,mon_spent = 0,loyalty=Loyalty_level.objects.get(loyalty_points=0))
@@ -46,11 +47,11 @@ def takeaway(request):
             messages.info(request, 'No area code available')
             return redirect('/ufunc/')
         else:
-            delev = Delivery_staff.objects.filter(area_code = user.area_code)
+            delev = Delivery_staff.objects.filter(area_code = user.area_code,available_stat=1)
             if delev.exists():
-                return redirect('/takeaway/'+str(pnum)+'/menu')
+                return redirect('/takeaway/'+str(pnum)+'/'+str(delev[0].pk)+'/menu')
             else:
-                messages.info(request, 'Delivery staff no code')
+                messages.info(request, 'Our current active staff can\'t deliver to your area code')
                 return redirect('/ufunc/')
 
 def dinein(request):

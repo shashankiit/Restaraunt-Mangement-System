@@ -11,7 +11,6 @@ Folder restaraunt contains django files
 
 TODO
 
-- Update loyalty level on each user login.
 
 - Queueing algorithm
 

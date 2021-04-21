@@ -2,7 +2,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('<pnum>/menu/', views.menu_item_list),
-    path('<pnum>/menu/choices/', views.conforder),
-    path('<pnum>/menu/choices/con/',views.feed)
+    path('<pnum>/<delid>/menu/', views.menu_item_list),
+    path('<pnum>/<delid>/menu/choices/', views.conforder),
+    path('<pnum>/<delid>/menu/choices/con/',views.feed)
 ]

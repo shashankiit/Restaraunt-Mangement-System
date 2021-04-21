@@ -141,6 +141,11 @@ def conforder(request,pnum):
 			price=object1.selling_price
 			empty.append(price*int(quantity[i]))
 			totalprice += price*int(quantity[i])
+		for i in range(len(item)):
+			name = item[i]
+			object1 = Menu_item.objects.get(item_name=name)
+			object1.order_frequency+=int(quantity[i])
+			object1.save()
 		pnum=int(pnum)
 		user= User.objects.get(phone=pnum)
 		finalprice = totalprice -  int(user.loyalty.discount_perc*totalprice/100)
@@ -150,7 +155,7 @@ def conforder(request,pnum):
 		bud.earned+=finalprice
 		bud.save()
 		mylist = zip(choices, quantity, empty)
-		context = {'chosen':mylist ,'totprice':totalprice, 'finprice':finalprice, 'pnum':pnum}
+		context = {'chosen':mylist ,'totprice':totalprice, 'finprice':finalprice, 'user':user}
 		return render(request, 'dinein/conford.html', context)
 
 def chekifavail(item,quantity,ling):

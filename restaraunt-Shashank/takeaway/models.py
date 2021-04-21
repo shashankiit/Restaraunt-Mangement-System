@@ -5,6 +5,7 @@ from userlog.models import *
 class Menu_item(models.Model):
 	item_name = models.CharField(max_length=200, null=True,unique=True)
 	selling_price = models.IntegerField(null=True)
+	order_frequency = models.IntegerField(default=0)
 
 	def __str__(self):
 		return self.item_name

@@ -12,7 +12,6 @@
     <title>Confirm</title>
 </head>
 <body>
-    <h1>Hello {{pnum}}</h1>
     <h2>Final Bill </h2><br>
     <table width="30%">
         <tr>
@@ -32,10 +31,13 @@
 	    {% endfor %}
     </table>
     Total : {{totprice}} <br>
+    Discount : {{user.loyalty.discount_perc}}% <br>
     Final Bill: {{finprice}} <br>
+    Delivered By : {{deliv.name}} <br>
+    Phone : {{deliv.phone}}
     <form action="con/" method="POST">
     {% csrf_token %}
-    <input type = "hidden" value = "pnum">
+    {% comment %} <input type = "hidden" value = {{user.phone}}> {% endcomment %}
     <input type = "submit" value = "Continue">
     </form>
     

@@ -12,7 +12,6 @@
     <title>Confirm</title>
 </head>
 <body>
-    <h1>Hiya {{pnum}}</h1>
     <h2>Final Bill </h2><br>
     <table width="30%">
         <tr>
@@ -32,6 +31,7 @@
 	    {% endfor %}
     </table>
     Total : {{totprice}} <br>
+    Discount : {{user.loyalty.discount_perc}}% <br>
     Final Bill: {{finprice}} <br>
     <form action="orderagain/" method="POST">
         {% csrf_token %}
