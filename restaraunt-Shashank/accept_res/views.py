@@ -10,7 +10,9 @@ def menu_item_list(request,pnum):
 	allmenu = Menu_item.objects.all()
 	user = User.objects.get(phone=int(pnum))
 	if alltables.count() != 0:
-		return render(request, 'accept_res/menu.html', {'menu':allmenu,"user":user})
+		############# PASS time
+		tleft = 10
+		return render(request, 'accept_res/menu.html', {'menu':allmenu,"user":user,"tleft":tleft})
 	else:
 		nowtime = datetime.now()
 		date_time = nowtime.strftime("%Y/%m/%d")
@@ -54,7 +56,9 @@ def menu_item_list(request,pnum):
 			allt = Dining_table.objects.get(table_id=useres[i].table_id)
 			allt.phone_occupied=int(pnum)
 			allt.save()
-			return render(request, 'accept_res/menu.html', {'menu':allmenu,"user":user})
+			##########pass time
+			tleft =10
+			return render(request, 'accept_res/menu.html', {'menu':allmenu,"user":user,"tleft":tleft})
 		else:
 			messages.info(request, f"There is no reservation or you haven't arrived on time")
 			return redirect('/ufunc')
@@ -99,7 +103,9 @@ def conforder(request,pnum):
 		bud.earned+=finalprice
 		bud.save()
 		mylist = zip(choices, quantity, empty)
-		context = {'chosen':mylist ,'totprice':totalprice, 'finprice':finalprice, 'user':user}
+		##############PASS time
+		tleft = 10
+		context = {'chosen':mylist ,'totprice':totalprice, 'finprice':finalprice, 'user':user,"tleft":tleft}
 	return render(request, 'accept_res/conford.html', context)
 
 def chekifavail(item,quantity,ling):

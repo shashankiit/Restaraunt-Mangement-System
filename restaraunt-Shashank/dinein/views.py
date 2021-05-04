@@ -52,7 +52,9 @@ def buttonform(request, pnum):
 		# print('HI')
 		allmenu = Menu_item.objects.all()
 		user = User.objects.get(phone=int(pnum))
-		return render(request, 'dinein/menu.html', {'menu':allmenu,"user":user})
+		#############pass time
+		timeleft = 10
+		return render(request, 'dinein/menu.html', {'menu':allmenu,"user":user,"tleft":timeleft})
 	if request.POST["action"] == "Confirm" and (tablers.count() == 0):
 		# GRAB DATA FROM URL
 		diners = int(request.POST["diners"])
@@ -110,7 +112,9 @@ def buttonform(request, pnum):
 		messages.info(request, 'Have a nice meal')
 		allmenu = Menu_item.objects.all()
 		user = User.objects.get(phone=int(pnum))
-		return render(request, 'dinein/menu.html', {'menu':allmenu,"user":user})
+		#### pass time
+		tleft = 10
+		return render(request, 'dinein/menu.html', {'menu':allmenu,"user":user,"tleft":tleft})
 	else:
 		messages.info(request, 'Try adjusting time')
 		return redirect('/dinein/'+str(pnum)+'/dinein/')
@@ -155,7 +159,9 @@ def conforder(request,pnum):
 		bud.earned+=finalprice
 		bud.save()
 		mylist = zip(choices, quantity, empty)
-		context = {'chosen':mylist ,'totprice':totalprice, 'finprice':finalprice, 'user':user}
+		######## pass time
+		tleft = 10
+		context = {'chosen':mylist ,'totprice':totalprice, 'finprice':finalprice, 'user':user,"tleft":tleft}
 		return render(request, 'dinein/conford.html', context)
 
 def chekifavail(item,quantity,ling):

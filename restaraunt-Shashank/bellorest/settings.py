@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'accept_res',
     'dinein',
     'startpage',
-    'feedback'
+    'feedback',
+    'background_task'
 
 ]
 

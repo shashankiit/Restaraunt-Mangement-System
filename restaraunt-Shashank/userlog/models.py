@@ -46,8 +46,8 @@ class Delivery_staff(models.Model):
 
 class Budget(models.Model):
     day = models.DateField()
-    spent = models.IntegerField(help_text = "Money spent on ingredients")
-    earned = models.IntegerField(help_text = "Money earned from sale")
+    spent = models.IntegerField(help_text = "Money spent on ingredients",default=0)
+    earned = models.IntegerField(help_text = "Money earned from sale",default=0)
 
     def __str__(self):
         return str(self.day)

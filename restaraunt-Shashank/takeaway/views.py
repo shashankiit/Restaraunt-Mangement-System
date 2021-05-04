@@ -3,6 +3,7 @@ from .models import *
 from django.shortcuts import redirect
 from django.contrib import messages
 from datetime import date
+from background_task import background
 # Create your views here.
 
 def menu_item_list(request,pnum,delid):
@@ -54,7 +55,8 @@ def conforder(request,pnum,delid):
 		########################################### to add return of delivery staff code
 		deliv = Delivery_staff.objects.get(pk = int(delid))
 		deliv.available_stat = 0
-		deliv.save() 
+		deliv.save()
+		reset_del(int(delid))
 		#########################################
 		context = {'chosen':mylist ,'totprice':totalprice, 'finprice':finalprice, 'user':user, 'deliv':deliv}
 	return render(request, 'takeaway/conford.html', context)
@@ -81,3 +83,12 @@ def restoreing(ling):
 
 def feed(request,pnum,delid):
 	return redirect(f"/feedback/{pnum}") ## redirect to feedback
+
+
+@background(schedule=10)
+def reset_del(delid):
+	# print('Yay')
+	deliv = Delivery_staff.objects.get(pk = int(delid))
+	deliv.available_stat = 1
+	deliv.save()
+	
