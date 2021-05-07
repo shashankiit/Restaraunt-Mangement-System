@@ -15,3 +15,9 @@ TODO
 - Queueing algorithm
 
 - Recommender System
+
+- Set time Bounds
+
+- Compute free slots for dinein 
+
+- Html/CSS
