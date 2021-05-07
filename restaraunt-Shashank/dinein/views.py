@@ -41,20 +41,31 @@ def confres(request, pnum):
 		restime = alldata["nowtime"]
 		diners = lister[0]
 		date = datetime.today().date()
+		time = datetime.today().time().strftime("%H:%M")
 		tdur = lister[1]
-		endtime = timeadd(restime, tdur)
-		context = {'diners':diners ,'date':date, 'restime':restime, 'duration':tdur, 'endtime':endtime, 'user':pnum}
+		endtime = timeadd(time, tdur)
+		context = {'diners':diners ,'date':date, 'restime':time, 'duration':tdur, 'endtime':endtime, 'user':pnum}
 	return render(request, 'dinein/confres.html', context)
 
 def buttonform(request, pnum):
 	tablers = Dining_table.objects.filter(phone_occupied=int(pnum))
 	if tablers.count() == 1:
-		# print('HI')
+		curres = Reservation.objects.get(phone=int(pnum),table_id=tablers.first().table_id)
+		sttime = curres.time_for_res
+		tdtime = curres.reservation_duration
+		entime = timeadd(str(sttime),str(tdtime))
+		split = entime.split(':')
+		now = datetime.now()
+		resend = datetime(now.year,now.month,now.day,int(split[0]),int(split[1]))
+		delta = resend - now
 		allmenu = Menu_item.objects.all()
 		user = User.objects.get(phone=int(pnum))
 		#############pass time
-		timeleft = 10
-		return render(request, 'dinein/menu.html', {'menu':allmenu,"user":user,"tleft":timeleft})
+		timeleft = int(delta.total_seconds())
+		topit = Menu_item.objects.all().order_by('-order_frequency')
+		a=min(len(topit),5)
+		topit = topit[:a]
+		return render(request, 'dinein/menu.html', {'menu':allmenu,"user":user,"tleft":timeleft,"topit":topit})
 	if request.POST["action"] == "Confirm" and (tablers.count() == 0):
 		# GRAB DATA FROM URL
 		diners = int(request.POST["diners"])
@@ -113,8 +124,12 @@ def buttonform(request, pnum):
 		allmenu = Menu_item.objects.all()
 		user = User.objects.get(phone=int(pnum))
 		#### pass time
-		tleft = 10
-		return render(request, 'dinein/menu.html', {'menu':allmenu,"user":user,"tleft":tleft})
+		split = str(timedur).split(':')
+		tleft = int(split[0])*3600 + int(split[1])*60
+		topit = Menu_item.objects.all().order_by('-order_frequency')
+		a=min(len(topit),5)
+		topit = topit[:a]
+		return render(request, 'dinein/menu.html', {'menu':allmenu,"user":user,"tleft":tleft,"topit":topit})
 	else:
 		messages.info(request, 'Try adjusting time')
 		return redirect('/dinein/'+str(pnum)+'/dinein/')
@@ -160,7 +175,16 @@ def conforder(request,pnum):
 		bud.save()
 		mylist = zip(choices, quantity, empty)
 		######## pass time
-		tleft = 10
+		tablers = Dining_table.objects.filter(phone_occupied=int(pnum))
+		curres = Reservation.objects.get(phone=int(pnum),table_id=tablers.first().table_id)
+		sttime = curres.time_for_res
+		tdtime = curres.reservation_duration
+		entime = timeadd(str(sttime),str(tdtime))
+		split = entime.split(':')
+		now = datetime.now()
+		resend = datetime(now.year,now.month,now.day,int(split[0]),int(split[1]))
+		delta = resend - now
+		tleft = int(delta.total_seconds())
 		context = {'chosen':mylist ,'totprice':totalprice, 'finprice':finalprice, 'user':user,"tleft":tleft}
 		return render(request, 'dinein/conford.html', context)
 
@@ -186,13 +210,10 @@ def restoreing(ling):
 
 def orderagain(request, pnum):
 	if request.POST["action"] == "Order More":
-		allmenu = Menu_item.objects.all()
-		user = User.objects.get(phone=int(pnum))
 		return redirect('/dinein/'+str(pnum)+'/dinein/confirmation/update/')
 	else:
 		# SET PHONE NUMBER in Dining_table TO NULL
 		todate = date.today()
-		nowtime = datetime.now().time()
 		useres = Reservation.objects.filter(phone=int(pnum),date_for_res=todate)
 		mytableid = useres.order_by('time_for_res').first().table_id
 		useres[0].delete()

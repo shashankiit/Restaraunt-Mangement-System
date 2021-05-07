@@ -56,6 +56,10 @@
     <input type = "hidden" name = "pnum" value = {{user.phone}}>
     <input type="submit">
 </form>
+<h2>Our most recommended Items</h2>
+{% for i in topit %}
+{{i.item_name}}<br>
+{% endfor %}
 
     {% if messages %}
     <ul class="messages">

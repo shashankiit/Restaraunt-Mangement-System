@@ -11,8 +11,20 @@ def menu_item_list(request,pnum):
 	user = User.objects.get(phone=int(pnum))
 	if alltables.count() != 0:
 		############# PASS time
-		tleft = 10
-		return render(request, 'accept_res/menu.html', {'menu':allmenu,"user":user,"tleft":tleft})
+		tablers = Dining_table.objects.filter(phone_occupied=int(pnum))
+		curres = Reservation.objects.get(phone=int(pnum),table_id=tablers.first().table_id)
+		sttime = curres.time_for_res
+		tdtime = curres.reservation_duration
+		entime = timeadd(str(sttime),str(tdtime))
+		split = entime.split(':')
+		now = datetime.now()
+		resend = datetime(now.year,now.month,now.day,int(split[0]),int(split[1]))
+		delta = resend - now
+		tleft = int(delta.total_seconds())
+		topit = Menu_item.objects.all().order_by('-order_frequency')
+		a=min(len(topit),5)
+		topit = topit[:a]
+		return render(request, 'accept_res/menu.html', {'menu':allmenu,"user":user,"tleft":tleft,"topit":topit})
 	else:
 		nowtime = datetime.now()
 		date_time = nowtime.strftime("%Y/%m/%d")
@@ -36,6 +48,8 @@ def menu_item_list(request,pnum):
 					continue
 				if (nowtime - stime < timedelta(hours=1)) or (stime - nowtime < timedelta(hours=1)):
 					validres = True
+					tdur = useres[i].reservation_duration
+					strtime = tdur.strftime("%H:%M")
 					break
 				else:
 					continue
@@ -57,8 +71,12 @@ def menu_item_list(request,pnum):
 			allt.phone_occupied=int(pnum)
 			allt.save()
 			##########pass time
-			tleft =10
-			return render(request, 'accept_res/menu.html', {'menu':allmenu,"user":user,"tleft":tleft})
+			split = str(strtime).split(':')
+			tleft = int(split[0])*3600 + int(split[1])*60
+			topit = Menu_item.objects.all().order_by('-order_frequency')
+			a=min(len(topit),5)
+			topit = topit[:a]
+			return render(request, 'accept_res/menu.html', {'menu':allmenu,"user":user,"tleft":tleft,"topit":topit})
 		else:
 			messages.info(request, f"There is no reservation or you haven't arrived on time")
 			return redirect('/ufunc')
@@ -104,7 +122,16 @@ def conforder(request,pnum):
 		bud.save()
 		mylist = zip(choices, quantity, empty)
 		##############PASS time
-		tleft = 10
+		tablers = Dining_table.objects.filter(phone_occupied=int(pnum))
+		curres = Reservation.objects.get(phone=int(pnum),table_id=tablers.first().table_id)
+		sttime = curres.time_for_res
+		tdtime = curres.reservation_duration
+		entime = timeadd(str(sttime),str(tdtime))
+		split = entime.split(':')
+		now = datetime.now()
+		resend = datetime(now.year,now.month,now.day,int(split[0]),int(split[1]))
+		delta = resend - now
+		tleft = int(delta.total_seconds())
 		context = {'chosen':mylist ,'totprice':totalprice, 'finprice':finalprice, 'user':user,"tleft":tleft}
 	return render(request, 'accept_res/conford.html', context)
 
