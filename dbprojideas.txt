@@ -1,3 +1,0 @@
-
-6) time duration on reserve_table page to be split into integer hour and minute fields and not a single time field (OPTIONAL)
-7) Single button in admin panel to reinitalise a whole day, resupply orders, new entry in budget, clear all tables  of the previous day and more
