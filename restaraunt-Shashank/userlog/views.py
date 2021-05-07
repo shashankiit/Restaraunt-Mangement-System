@@ -1,8 +1,9 @@
 from django.shortcuts import render
 from .models import *
+from takeaway.models import *
 from django.shortcuts import redirect
 from django.contrib import messages
-
+from datetime import date
 # Create your views here.
 
 def entpno(request):
@@ -37,6 +38,18 @@ def update(request):
     else:
         user = User.objects.create(phone = pnum,name = name,address = addr,area_code=arcode,mon_spent = 0,loyalty=Loyalty_level.objects.get(loyalty_points=0))
         user.save()
+    inv = Inventory.objects.all()
+    bud = Budget.objects.filter(day=date.today())
+    if not bud.exists():
+        bud = Budget.objects.create(day=date.today(),spent=0,earned=0)
+        bud.save()
+    bud = Budget.objects.get(day=date.today())
+    for ingred in inv:
+        if ingred.quantity < ingred.min_quantity :
+            ingred.quantity+=ingred.min_quantity
+            ingred.save()
+            bud.spent+=ingred.min_quantity * ingred.cost_price
+            bud.save()
     return render(request,"userlog/dispoptions.html",{"user":user})
 
 def takeaway(request):
