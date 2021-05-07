@@ -1,9 +1,7 @@
 from django.shortcuts import redirect, render
 from .models import *
 from django.contrib import messages
-from datetime import time, date, datetime
-
-flag = 0
+from datetime import time, date, datetime, timedelta
 
 def differlist(li1, li2):
 	setA=set(li1)
@@ -23,10 +21,31 @@ def timeadd(t1,t2):
 		hour +=1
 		minute -= 60
 	hour += int(t1l[0]) + int(t2l[0])
+	if hour >23:
+		hour-=24
 	if minute < 10:
 		minute = "0" + str(minute)
 	time = str(hour) + ":" + str(minute)
 	return time
+
+def get_slots(hours, appointments, duration):
+	slots = sorted([(hours[0], hours[0])] + appointments + [(hours[1], hours[1])])
+	freeslots = []
+	freeslot = []
+	for start, end in ((slots[i][1], slots[i+1][0]) for i in range(len(slots)-1)):
+		# assert start <= end, "Cannot attend all appointments"
+		# if start > datetime.now()
+		while start + duration <= end:
+			x = "{:%H:%M} - {:%H:%M}".format(start, start + duration)
+			freeslots.append(x)
+			start += duration
+	for i in freeslots:
+		if int(i[0] + i[1]) > datetime.now().hour:
+			freeslot.append(i)
+		elif int(i[0] + i[1]) == datetime.now().hour:
+			if int(i[3]+i[4]) > datetime.now().minute:
+				freeslot.append(i)
+	return freeslot
 
 def reservation(request, pnum):
 	user = User.objects.get(phone=int(pnum))
@@ -73,25 +92,37 @@ def buttonform(request, pnum):
 		timedur = request.POST["duration"]
 		endtime = request.POST["endtime"]
 		# FORMAT DATA FOR COMPARISON
-		start = restime.split(':')
-		timeup=time(hour=int(start[0]),minute=int(start[1])) # diner starttime datetime class
-		start = endtime.split(':')
-		timedown=time(hour=int(start[0]),minute=int(start[1])) # diner endtime datetime class
 		today = date.today()
+		start = restime.split(':')
+		timeup=datetime(year=today.year,month=today.month,day=today.day,hour=int(start[0]),minute=int(start[1])) # diner starttime datetime class
+		start = timedur.split(':')
+		dura=timedelta(hours=int(start[0]),minutes=int(start[1])) # diner endtime datetime class
+		timedown = timeup + dura
+		start = timedur.split(':')
+		td = timedelta(hours=int(start[0]),minutes=int(start[1]))
+		workinghours = (datetime(year=today.year,month=today.month,day=today.day,hour=8), datetime(year=today.year,month=today.month,day=today.day,hour=23,minute=45))
 		# START COMPUTATION
 		dateres = Reservation.objects.filter(date_for_res=today)
 		occupied_tables=[]
 		occupied_objects=[]
+		freeslotscomputation=[]
+		if (timeup < workinghours[0] or timedown > workinghours[1]):
+			messages.info(request, 'Restaurant will be closed by then, please adjust time or try tomorrow. Working hours are 08:00 to 23:00 hrs')
+			return redirect('/dinein/'+str(pnum)+'/dinein')
 		for i in range(dateres.count()):
 			current = dateres[i] # Res object
 			stime = current.time_for_res # Start of res datetime class
 			sdur = stime.strftime('%H:%M') # start of res in string
 			tdur = current.reservation_duration.strftime('%H:%M') # duration of res in string
+			start = tdur.split(':')
+			stime=datetime(year=today.year,month=today.month,day=today.day,hour=int(start[0]),minute=int(start[1]))
 			etime = timeadd(tdur,sdur) # endtime in string
 			start = endtime.split(':')
-			etime=time(hour=int(start[0]),minute=int(start[1])) # endtime in datetime class
+			etime=datetime(year=today.year,month=today.month,day=today.day,hour=int(start[0]),minute=int(start[1]))
 			overlapval = overlap(stime,etime,timeup,timedown)
 			if overlapval == True:
+				x=(stime,etime)
+				freeslotscomputation.append(x)
 				occupied_tables.append(int(current.table_id))
 				occupied_objects.append(current)
 			else:
@@ -101,7 +132,6 @@ def buttonform(request, pnum):
 		for i in range(alltables.count()):
 			alltab.append(int(alltables[i].table_id))
 		avaitables = differlist(alltab,occupied_tables)
-		print(avaitables)
 		blocked_slots_list = []
 		for i in range(len(occupied_objects)):
 			stime = occupied_objects[i].time_for_res.strftime('%H:%M')
@@ -110,7 +140,12 @@ def buttonform(request, pnum):
 			stringer = stime + ' - ' + etime
 			blocked_slots_list.append(stringer)
 		if len(avaitables)==0:
-			messages.info(request, 'No Tables Available till that time')
+			freeslots = get_slots(workinghours,freeslotscomputation,td)
+			print(freeslots)
+			messages.info(request, 'No Tables Available at that time')
+			messages.info(request, 'Free slots are:')
+			for i in freeslots:
+				messages.info(request, i)
 			return redirect('/dinein/'+str(pnum)+'/dinein')
 		# GET TABLE OBJECTS WHICH ARE AVAILABLE
 		avaitobj = Dining_table.objects.filter(table_id__in=avaitables)

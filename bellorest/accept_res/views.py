@@ -1,6 +1,9 @@
 from reserve_tab.views import timeadd
 from django.shortcuts import render
 from .models import *
+from reserve_tab.models import *
+from userlog.models import *
+from takeaway.models import *
 from django.shortcuts import redirect
 from django.contrib import messages
 from datetime import date, datetime, timedelta

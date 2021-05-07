@@ -1,0 +1,32 @@
+
+
+
+.content {
+  max-width: 500px;
+  max-height: 500px;
+  margin: auto;
+}
+form {
+  text-align: center;
+  background-color: coral;
+}
+
+.sb {
+
+  background: #0066A2;
+  
+  color: white;
+  
+  border-style: outset;
+  
+  border-color: #0066A2;
+  
+  height: 50px;
+  
+  width: 100px;
+  
+  font: bold 15px arial, sans-serif;
+  
+  text-shadow:none;
+  
+  }

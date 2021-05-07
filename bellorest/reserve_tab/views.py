@@ -1,5 +1,6 @@
 from django.shortcuts import redirect, render
 from .models import *
+from userlog.models import *
 from django.contrib import messages
 from datetime import time, date, datetime, timedelta
 
@@ -67,13 +68,15 @@ def buttonform(request, pnum):
 		datex = date(year=int(datesplit[0]),month=int(datesplit[1]),day=int(datesplit[2]))
 		start = restime.split(':')
 		timeup=datetime(year=int(datesplit[0]),month=int(datesplit[1]),day=int(datesplit[2]),hour=int(start[0]),minute=int(start[1]))
-		start = endtime.split(':')
-		timedown=datetime(year=int(datesplit[0]),month=int(datesplit[1]),day=int(datesplit[2]),hour=int(start[0]),minute=int(start[1]))
 		start = timedur.split(':')
-		td = timedelta(hours=int(start[0]),minutes=int(start[1]))
+		dura=timedelta(hours=int(start[0]),minutes=int(start[1])) # diner endtime datetime class
+		timedown = timeup + dura
 		workinghours = (datetime(year=int(datesplit[0]),month=int(datesplit[1]),day=int(datesplit[2]),hour=8), datetime(year=int(datesplit[0]),month=int(datesplit[1]),day=int(datesplit[2]),hour=23))
 		today = date.today()
 		# START COMPUTATION
+		if (timeup < workinghours[0] or timedown > workinghours[1]):
+			messages.info(request, 'Restaurant will not be open, please adjust time or try again later')
+			return redirect('/reserve_tab/'+str(pnum)+'/reservation')
 		if datex > today:
 			dateres = Reservation.objects.filter(date_for_res=datex)
 			occupied_tables=[]
@@ -110,7 +113,7 @@ def buttonform(request, pnum):
 				stringer = stime + ' - ' + etime
 				blocked_slots_list.append(stringer)
 			if len(avaitables)==0:
-				freeslots = get_slots(workinghours,freeslotscomputation,td)
+				freeslots = get_slots(workinghours,freeslotscomputation,dura)
 				messages.info(request, 'No Tables Available at that time')
 				messages.info(request, 'Free slots are:')
 				for i in freeslots:

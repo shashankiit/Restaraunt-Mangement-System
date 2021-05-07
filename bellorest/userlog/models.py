@@ -1,5 +1,5 @@
 from django.db import models
-
+from reserve_tab.models import *
 # Create your models here.
 class Loyalty_level(models.Model):
 	loyalty_points = models.IntegerField(unique=True)

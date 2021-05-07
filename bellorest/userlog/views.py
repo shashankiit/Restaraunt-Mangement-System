@@ -3,7 +3,7 @@ from .models import *
 from takeaway.models import *
 from django.shortcuts import redirect
 from django.contrib import messages
-from datetime import date
+from datetime import date, datetime, time, timedelta
 # Create your views here.
 
 def entpno(request):
@@ -50,6 +50,21 @@ def update(request):
             ingred.save()
             bud.spent+=ingred.min_quantity * ingred.cost_price
             bud.save()
+    # tablephone = Dining_table.objects.get(phone_occupied)
+    res = Reservation.objects.filter(date_for_res__lt=date.today())
+    for i in res:
+        i.delete()
+    res = Reservation.objects.filter(date_for_res=date.today())
+    for i in res:
+        time1 = i.time_for_res.strftime("%H:%M")
+        split1 = time1.split(":")
+        seconds1 = int(split1[0])*3600 + int(split1[1])*60
+        timenow1 = datetime.now().time().strftime("%H:%M")
+        split1 = timenow1.split(":")
+        seconds2 = int(split1[0])*3600 + int(split1[1])*60
+        if(seconds2 - seconds1 > 1800):
+            if(Dining_table.objects.filter(phone_occupied=i.phone).count() == 0):
+                i.delete()
     return render(request,"userlog/dispoptions.html",{"user":user})
 
 def takeaway(request):
