@@ -21,7 +21,10 @@ def menu_item_list(request,pnum):
 		resend = datetime(now.year,now.month,now.day,int(split[0]),int(split[1]))
 		delta = resend - now
 		tleft = int(delta.total_seconds())
-		return render(request, 'accept_res/menu.html', {'menu':allmenu,"user":user,"tleft":tleft})
+		topit = Menu_item.objects.all().order_by('-order_frequency')
+		a=min(len(topit),5)
+		topit = topit[:a]
+		return render(request, 'accept_res/menu.html', {'menu':allmenu,"user":user,"tleft":tleft,"topit":topit})
 	else:
 		nowtime = datetime.now()
 		date_time = nowtime.strftime("%Y/%m/%d")
@@ -70,7 +73,10 @@ def menu_item_list(request,pnum):
 			##########pass time
 			split = str(strtime).split(':')
 			tleft = int(split[0])*3600 + int(split[1])*60
-			return render(request, 'accept_res/menu.html', {'menu':allmenu,"user":user,"tleft":tleft})
+			topit = Menu_item.objects.all().order_by('-order_frequency')
+			a=min(len(topit),5)
+			topit = topit[:a]
+			return render(request, 'accept_res/menu.html', {'menu':allmenu,"user":user,"tleft":tleft,"topit":topit})
 		else:
 			messages.info(request, f"There is no reservation or you haven't arrived on time")
 			return redirect('/ufunc')

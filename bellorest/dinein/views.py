@@ -62,7 +62,10 @@ def buttonform(request, pnum):
 		user = User.objects.get(phone=int(pnum))
 		#############pass time
 		timeleft = int(delta.total_seconds())
-		return render(request, 'dinein/menu.html', {'menu':allmenu,"user":user,"tleft":timeleft})
+		topit = Menu_item.objects.all().order_by('-order_frequency')
+		a=min(len(topit),5)
+		topit = topit[:a]
+		return render(request, 'dinein/menu.html', {'menu':allmenu,"user":user,"tleft":timeleft,"topit":topit})
 	if request.POST["action"] == "Confirm" and (tablers.count() == 0):
 		# GRAB DATA FROM URL
 		diners = int(request.POST["diners"])
@@ -123,7 +126,10 @@ def buttonform(request, pnum):
 		#### pass time
 		split = str(timedur).split(':')
 		tleft = int(split[0])*3600 + int(split[1])*60
-		return render(request, 'dinein/menu.html', {'menu':allmenu,"user":user,"tleft":tleft})
+		topit = Menu_item.objects.all().order_by('-order_frequency')
+		a=min(len(topit),5)
+		topit = topit[:a]
+		return render(request, 'dinein/menu.html', {'menu':allmenu,"user":user,"tleft":tleft,"topit":topit})
 	else:
 		messages.info(request, 'Try adjusting time')
 		return redirect('/dinein/'+str(pnum)+'/dinein/')
@@ -150,7 +156,7 @@ def conforder(request,pnum):
 				#message and redirect to item list
 				restoreing(ling)
 				messages.info(request, f'Ingredients not available for {object1.item_name}')
-				return redirect('/dinein/'+str(pnum)+'/confirmation/update/')
+				return redirect('/dinein/'+str(pnum)+'/dinein/confirmation/update/')
 			price=object1.selling_price
 			empty.append(price*int(quantity[i]))
 			totalprice += price*int(quantity[i])

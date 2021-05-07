@@ -8,8 +8,11 @@ from background_task import background
 
 def menu_item_list(request,pnum,delid):
 	allmenu = Menu_item.objects.all()
+	topit = Menu_item.objects.all().order_by('-order_frequency')
+	a=min(len(topit),5)
+	topit = topit[:a]
 	user = User.objects.get(phone=int(pnum))
-	return render(request, 'takeaway/menu.html', {'menu':allmenu,"user":user})
+	return render(request, 'takeaway/menu.html', {'menu':allmenu,"user":user,'topit':topit})
 
 def conforder(request,pnum,delid):
 	if request.method == 'POST':
@@ -82,12 +85,12 @@ def restoreing(ling):
 		ing.save()
 
 def feed(request,pnum,delid):
-	return redirect(f"/feedback/{pnum}") ## redirect to feedback
+	return redirect(f"/feedback/{pnum}")
 
 
 @background(schedule=10)
 def reset_del(delid):
-	# print('Yay')
+	
 	deliv = Delivery_staff.objects.get(pk = int(delid))
 	deliv.available_stat = 1
 	deliv.save()

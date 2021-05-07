@@ -30,7 +30,7 @@ def get_slots(hours, appointments, duration):
 	slots = sorted([(hours[0], hours[0])] + appointments + [(hours[1], hours[1])])
 	freeslots = []
 	for start, end in ((slots[i][1], slots[i+1][0]) for i in range(len(slots)-1)):
-		assert start <= end, "Cannot attend all appointments"
+		# assert start <= end, "Cannot attend all appointments"
 		while start + duration <= end:
 			x = "{:%H:%M} - {:%H:%M}".format(start, start + duration)
 			freeslots.append(x)
@@ -112,6 +112,9 @@ def buttonform(request, pnum):
 			if len(avaitables)==0:
 				freeslots = get_slots(workinghours,freeslotscomputation,td)
 				messages.info(request, 'No Tables Available at that time')
+				messages.info(request, 'Free slots are:')
+				for i in freeslots:
+					messages.info(request, i)
 				return redirect('/reserve_tab/'+str(pnum)+'/reservation')
 		elif datex == today:
 			# alltables = Dining_table.objects.filter(Q(capacity__gte = diners) & Q(phone_occupied = None))
