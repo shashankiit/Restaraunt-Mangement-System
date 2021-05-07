@@ -5,6 +5,7 @@ from userlog.models import *
 class Menu_item(models.Model):
 	item_name = models.CharField(max_length=200, null=True,unique=True)
 	selling_price = models.IntegerField(null=True)
+	order_frequency = models.IntegerField(default=0)
 
 	def __str__(self):
 		return self.item_name
@@ -30,3 +31,9 @@ class Ingredient_list(models.Model):
 		unique_together = ('item','ingredient')
 	def __str__(self):
 		return f"Item : {self.item.item_name} --> Ingredient : {self.ingredient.ingredient_name}"
+
+
+class Order_Ingredient(models.Model):
+	day = models.DateField(auto_now_add=True,blank=True)
+	ingredient = models.ForeignKey(Inventory, on_delete = models.CASCADE)
+	amount = models.IntegerField(help_text = "in grams")

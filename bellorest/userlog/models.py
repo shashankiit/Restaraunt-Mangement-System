@@ -18,6 +18,20 @@ class User(models.Model):
 
     def __str__(self):
         return f"{self.name}->{str(self.phone)}"
+
+    def loyaltyupdate(self):
+        if self.mon_spent < 2000 :
+            self.loyalty = Loyalty_level.objects.get(loyalty_points=0)
+        elif self.mon_spent < 4000 :
+            self.loyalty = Loyalty_level.objects.get(loyalty_points=1)
+        elif self.mon_spent < 6000 :
+            self.loyalty = Loyalty_level.objects.get(loyalty_points=2)
+        elif self.mon_spent < 8000 :
+            self.loyalty = Loyalty_level.objects.get(loyalty_points=3)
+        elif self.mon_spent < 12000 :
+            self.loyalty = Loyalty_level.objects.get(loyalty_points=4)
+        else :
+            self.loyalty = Loyalty_level.objects.get(loyalty_points=5)
     
 
 class Delivery_staff(models.Model):
@@ -32,8 +46,8 @@ class Delivery_staff(models.Model):
 
 class Budget(models.Model):
     day = models.DateField()
-    spent = models.IntegerField(help_text = "Money spent on ingredients")
-    earned = models.IntegerField(help_text = "Money earned from sale")
+    spent = models.IntegerField(help_text = "Money spent on ingredients",default=0)
+    earned = models.IntegerField(help_text = "Money earned from sale",default=0)
 
     def __str__(self):
         return str(self.day)

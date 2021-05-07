@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'dinein',
     'startpage',
     'feedback',
+    'background_task'
+
 ]
 
 MIDDLEWARE = [
