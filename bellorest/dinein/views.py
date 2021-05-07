@@ -100,7 +100,7 @@ def buttonform(request, pnum):
 		timedown = timeup + dura
 		start = timedur.split(':')
 		td = timedelta(hours=int(start[0]),minutes=int(start[1]))
-		workinghours = (datetime(year=today.year,month=today.month,day=today.day,hour=8), datetime(year=today.year,month=today.month,day=today.day,hour=23,minute=45))
+		workinghours = (datetime(year=today.year,month=today.month,day=today.day,hour=8), datetime(year=today.year,month=today.month,day=today.day,hour=23))
 		# START COMPUTATION
 		dateres = Reservation.objects.filter(date_for_res=today)
 		occupied_tables=[]
